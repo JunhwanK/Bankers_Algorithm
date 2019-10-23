@@ -40,6 +40,11 @@ bool Bank::add(KEY_TYPE id, RESOURCE_TYPE max_needed) {
 
 template <typename KEY_TYPE, typename RESOURCE_TYPE>
 bool Bank::add(KEY_TYPE id, RESOURCE_TYPE max_needed, RESOURCE_TYPE given) {
+	//error checking
+	if (index_tracker.find(id) != index_tracker.end()) {
+		throw "Error in Bank::add : Duplicate id.";
+	}
+
 	if (given > resource) {
 		return false;
 	}
@@ -59,6 +64,11 @@ bool Bank::add(KEY_TYPE id, RESOURCE_TYPE max_needed, RESOURCE_TYPE given) {
 
 template <typename KEY_TYPE, typename RESOURCE_TYPE>
 void Bank::erase(KEY_TYPE id) {
+	//error checking
+	if (index_tracker.find(id) != index_tracker.end()) {
+		throw "Error in Bank::erase : Nonexistent id.";
+	}
+
 	int ind = index_tracker[id]; //find index in tracker
 	Loaner *target = tracker[ind];
 
@@ -81,7 +91,12 @@ void Bank::erase(KEY_TYPE id) {
 }
 
 template <typename KEY_TYPE, typename RESOURCE_TYPE>
-bool Bank::loan(KEY_TYPE id, RESOURCE_TYPE amount);
+bool Bank::loan(KEY_TYPE id, RESOURCE_TYPE amount) {
+	//error checking
+	if (index_tracker.find(id) != index_tracker.end()) {
+		throw "Error in Bank::loan : Nonexistent id.";
+	}
+}
 
 
 template <typename KEY_TYPE, typename RESOURCE_TYPE>
