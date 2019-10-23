@@ -53,7 +53,7 @@ bool Bank::add(KEY_TYPE id, RESOURCE_TYPE max_needed, RESOURCE_TYPE given) {
 	Loaner* new_entry = new Loaner{id, max_needed-given, given};
 	
 	auto insert_it = lower_bound(track.begin(), tracker.end(), *new_entry, tracker_comp);
-	tracker.insert(insert_it, new_entry); //inser to tracker
+	tracker.insert(insert_it, new_entry); //insert to tracker
 	index_tracker[(*insert)->id] = insert_it - tracker.begin(); //record index
 
 	//update index tracker
@@ -96,8 +96,57 @@ bool Bank::loan(KEY_TYPE id, RESOURCE_TYPE amount) {
 	if (index_tracker.find(id) != index_tracker.end()) {
 		throw "Error in Bank::loan : Nonexistent id.";
 	}
+
+	if (amount == 0) {
+		return check_status();
+	}
+
+	//get target loaner
+	size_t ind = index_tracker[id];
+	Loaner *target = tracker[ind];
+
+	//create and add new entry
+	Loaner *updated = new Loaner{target->id, target->may_need, target->given};
+	auto insert_it = lower_bound(track.begin(), tracker.end(), *new_entry, tracker_comp);
+	auto insert_ind = insert_it - tracker.begin();
+	tracker.insert(insert_it, new_entry); //insert to tracker
+	
+	//if save to give loan
+	if (check_status(true, ind)) {
+		//deleted old entry
+		tracker.erase(ind);
+
+		//update index tracker
+		for (auto i = ind; i < insert_ind; ++i) {
+			index_tracker[tracker[i]->id] -= 1;
+		}
+
+		return true;
+	}
+
+	//if not save to give loan
+	//delete new entry
+	tracker.erase(insert_ind);
+	return false;
 }
 
 
 template <typename KEY_TYPE, typename RESOURCE_TYPE>
-bool Bank::check_status();
+bool Bank::check_status() {
+	check_status_impl(false, 0);
+}
+
+template <typename KEY_TYPE, typename RESOURCE_TYPE>
+bool Bank::check_status_impl(bool ignore, size_t ignore_ind) {
+	RESOURCE_TYPE current_resource = resource;
+
+	for (size_t i = 0; i < tracker.size(); ++i) {
+		if (ignore && i == ignore_ind) {
+			continue;
+		} else if (current_resource < tracker[i]->may_need) {
+			return false;
+		}
+		current_resource += tracker[i]->given;
+	}
+	return true;
+}

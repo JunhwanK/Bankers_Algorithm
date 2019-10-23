@@ -37,6 +37,8 @@ public:
 	bool check_status();
 
 private:
+	bool check_status_impl(bool ignore, size_t ignore_ind);
+
 	struct Loaner {
 		KEY_TPYE id;
 		RESOURCE_TYPE may_need;
