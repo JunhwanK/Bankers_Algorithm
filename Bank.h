@@ -22,8 +22,8 @@ public:
 	bool remove_resource(RESOURCE_TYPE amount);
 
 	//add new loaner
-	void add(KEY_TYPE id, RESOURCE_TYPE max_needed);
-	void add(KEY_TYPE id, RESOURCE_TYPE max_needed, RESOURCE_TYPE already_give);
+	bool add(KEY_TYPE id, RESOURCE_TYPE max_needed);
+	bool add(KEY_TYPE id, RESOURCE_TYPE max_needed, RESOURCE_TYPE given);
 
 	//erase a loaner and retrieve their given resource
 	void erase(KEY_TYPE id);
@@ -40,16 +40,11 @@ private:
 	struct Loaner {
 		KEY_TPYE id;
 		RESOURCE_TYPE may_need;
-		RESOURCE_TYPE current_have;
+		RESOURCE_TYPE given;
 	};
 
-	//functor class for ordering Loaners
-	class Tracker_Comp {
-	public:
-		bool operator()(const Loaner &lhs, const Loaner &rhs) {
-			return lhs.may_need < rhs.may_need;
-		}
-	}
+	//function used for ordering Loaners in tracker
+	bool tracker_comp(vector<Loaner*>::iterator it, const Loaner* val);
 
 	//all Loaners sorted in ascending order of their may_need
 	std::vector<Loaner*> tracker;
