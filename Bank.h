@@ -9,6 +9,13 @@ class Bank {
 public:
 	Bank(RESOURCE_TYPE initial_resource);
 
+	~Bank();
+
+	//disable copy constructor
+	Bank(const Bank&) = delete;
+	//disable copy assignment operator
+    Bank& operator=(const Bank&) = delete;
+
 	//add or remove resources owned by the Bank
 	//return false if resource cannot be added or removed
 	bool add_resource(RESOURCE_TYPE amount);
@@ -25,7 +32,8 @@ public:
 	//does nothing and returns false if amount exceeds loaner's limit
 	bool loan(KEY_TYPE id, RESOURCE_TYPE amount);
 
-	//returns true
+	//returns true if there exists a schedule
+	//to satisfy all of current loaners
 	bool check_status();
 
 private:
@@ -44,8 +52,10 @@ private:
 	}
 
 	//all Loaners sorted in ascending order of their may_need
-	std::vector<Loaner> tracker;
+	std::vector<Loaner*> tracker;
 	std::unordered_map<KEY_TYPE, size_t> index_tracker;
+
+	RESOURCE_TYPE resource;
 };
 
 
